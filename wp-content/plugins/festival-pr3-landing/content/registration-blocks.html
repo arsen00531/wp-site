@@ -1,0 +1,51 @@
+<!-- wp:group {"align":"full","className":"festival-landing","layout":{"type":"default"}} -->
+<div class="wp-block-group alignfull festival-landing"><!-- wp:cover {"dimRatio":50,"isUserOverlayColor":true,"minHeight":50,"minHeightUnit":"vh","contentPosition":"center center","align":"full","className":"is-position-center-center festival-page-hero"} -->
+<div class="wp-block-cover alignfull is-position-center-center festival-page-hero" style="min-height:50vh"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-50 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center","className":"festival-hero-badge"} -->
+<p class="has-text-align-center festival-hero-badge">Приём заявок</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"textAlign":"center","level":1} -->
+<h1 class="wp-block-heading has-text-align-center">Регистрация</h1>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"align":"center","fontSize":"large"} -->
+<p class="has-text-align-center has-large-font-size">120 мест на очный формат. Трансляция ключевых лекций — бесплатно.</p>
+<!-- /wp:paragraph --></div></div>
+<!-- /wp:cover -->
+
+<!-- wp:group {"className":"festival-section","layout":{"type":"constrained"}} -->
+<div class="wp-block-group festival-section"><!-- wp:group {"className":"festival-section__inner","layout":{"type":"constrained","contentSize":"640px"}} -->
+<div class="wp-block-group festival-section__inner"><!-- wp:group {"className":"festival-cta","layout":{"type":"constrained"}} -->
+<div class="wp-block-group festival-cta"><!-- wp:heading {"textAlign":"center","level":2} -->
+<h2 class="wp-block-heading has-text-align-center">Подайте заявку до 1 июня</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"align":"center"} -->
+<p class="has-text-align-center">Заполните форму ниже. Для студентов — бесплатный вход по подтверждённой заявке.</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
+
+<!-- wp:html -->
+<form class="festival-registration-form" action="mailto:festival@pixelhorizon.example" method="post" enctype="text/plain">
+<label for="fest-name">ФИО</label>
+<input type="text" id="fest-name" name="name" required placeholder="Иван Иванов">
+<label for="fest-email">Email</label>
+<input type="email" id="fest-email" name="email" required placeholder="you@example.com">
+<label for="fest-role">Формат участия</label>
+<select id="fest-role" name="role">
+<option value="student">Студент (бесплатно)</option>
+<option value="pro">Профессионал</option>
+<option value="online">Только трансляция</option>
+</select>
+<label for="fest-msg">Комментарий (работа на конкурс)</label>
+<textarea id="fest-msg" name="message" rows="4" placeholder="Ссылка на портфолио или описание проекта"></textarea>
+<button type="submit">Отправить заявку</button>
+</form>
+<!-- /wp:html -->
+
+<!-- wp:paragraph {"align":"center","fontSize":"small"} -->
+<p class="has-text-align-center has-small-font-size">Или напишите на <a href="mailto:festival@pixelhorizon.example">festival@pixelhorizon.example</a>. Вернуться на <a href="%%HOME_URL%%">главную</a> или <a href="%%PROGRAM_URL%%">программу</a>.</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group --></div>
+<!-- /wp:group --></div>
+<!-- /wp:group -->

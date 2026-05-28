@@ -65,6 +65,9 @@ fi
 echo "→ Активация плагина лендинга..."
 run_wp plugin activate festival-pr3-landing
 
+echo "→ Настройка многостраничного сайта (ПР №4)..."
+run_wp eval 'if ( function_exists( "festival_pr4_setup" ) ) { festival_pr4_setup(); echo "OK\n"; }'
+
 echo ""
 echo "Готово."
 echo "  Сайт:    $WP_URL"
@@ -72,5 +75,5 @@ echo "  Админка: $WP_URL/wp-admin"
 echo "  Логин:   $WP_USER"
 echo "  Пароль:  $WP_PASS"
 echo ""
-echo "Лендинг: главная страница «Фестиваль цифрового искусства»."
-echo "Редактирование: Страницы → открыть страницу в редакторе блоков."
+echo "ПР №4: 4 страницы — Главная, Программа, Спикеры, Регистрация + меню в шапке."
+echo "Редактирование: Страницы → нужная страница; меню: Внешний вид → Редактор → Navigation."

@@ -561,8 +561,93 @@ body.festival-landing footer .wp-block-columns:not(:first-child) {
 	display: none !important;
 }
 
-body.festival-landing header .wp-block-navigation .wp-block-page-list li:not(:first-child) {
-	display: none;
+/* Меню PR4: все пункты + мобильный оверлей */
+body.festival-landing header .wp-block-navigation {
+	--navigation-layout-justification-setting: flex-end;
+}
+
+body.festival-landing .wp-block-navigation__responsive-container.is-menu-open {
+	background: var(--festival-bg) !important;
+	color: var(--festival-text) !important;
+	padding: 2rem 1.5rem !important;
+}
+
+body.festival-landing .wp-block-navigation__responsive-container.is-menu-open a {
+	color: var(--festival-text) !important;
+	font-size: 1.1rem !important;
+	padding: 0.75rem 0 !important;
+}
+
+body.festival-landing .wp-block-navigation__responsive-container-close,
+body.festival-landing .wp-block-navigation__responsive-container-open {
+	color: var(--festival-text) !important;
+}
+
+/* Внутренние страницы — компактный hero */
+.festival-page-hero.wp-block-cover {
+	min-height: 50vh !important;
+	padding-top: 5rem;
+}
+
+.festival-page-hero h1.wp-block-heading {
+	font-family: var(--festival-font-display) !important;
+	font-size: clamp(2rem, 5vw, 3.25rem) !important;
+	font-weight: 800 !important;
+}
+
+/* Форма регистрации */
+.festival-registration-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.65rem;
+	margin: 2rem 0 1.5rem;
+	padding: 2rem;
+	background: var(--festival-surface-alt);
+	border: 1px solid var(--festival-border);
+	border-radius: var(--festival-radius-lg);
+}
+
+.festival-registration-form label {
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: var(--festival-muted);
+	margin-top: 0.5rem;
+}
+
+.festival-registration-form input,
+.festival-registration-form select,
+.festival-registration-form textarea {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 0.75rem 1rem;
+	border-radius: 12px;
+	border: 1px solid var(--festival-border);
+	background: var(--festival-bg);
+	color: var(--festival-text);
+	font-family: var(--festival-font-body);
+	font-size: 1rem;
+}
+
+.festival-registration-form button[type="submit"] {
+	margin-top: 1rem;
+	padding: 0.9rem 1.75rem;
+	border: none;
+	border-radius: 999px;
+	background: var(--festival-gradient);
+	color: #fff;
+	font-weight: 600;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.festival-registration-form button[type="submit"]:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 40px rgba(168, 85, 247, 0.45);
+}
+
+.festival-speakers-detail .wp-block-column {
+	text-align: center;
 }
 
 /* Общие параграфы вне секций */
@@ -577,5 +662,21 @@ body.festival-landing .wp-block-paragraph {
 
 	#hero.wp-block-cover {
 		min-height: 85vh !important;
+	}
+
+	.festival-page-hero.wp-block-cover {
+		min-height: 42vh !important;
+	}
+
+	body.festival-landing header.wp-block-template-part {
+		padding: 0.5rem 1rem !important;
+	}
+
+	.festival-about.wp-block-columns {
+		flex-direction: column;
+	}
+
+	.festival-registration-form {
+		padding: 1.25rem;
 	}
 }

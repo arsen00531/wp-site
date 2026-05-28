@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Festival PR3 Landing
- * Description: Практическая работа №3 — одностраничный лендинг «Фестиваль цифрового искусства» (блоки Gutenberg).
- * Version: 1.3.5
+ * Description: ПР №3–4 — сайт «Фестиваль цифрового искусства»: лендинг и многостраничная структура (Gutenberg).
+ * Version: 2.0.0
  * Author: Student
  * Text Domain: festival-pr3
  */
@@ -11,10 +11,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'FESTIVAL_PR3_VERSION', '1.3.5' );
+define( 'FESTIVAL_PR3_VERSION', '2.0.0' );
 define( 'FESTIVAL_PR3_DIR', plugin_dir_path( __FILE__ ) );
 
 require_once FESTIVAL_PR3_DIR . 'includes/normalize-blocks.php';
+require_once FESTIVAL_PR3_DIR . 'includes/pr4-multipage.php';
 define( 'FESTIVAL_PR3_OPTION_PAGE_ID', 'festival_pr3_page_id' );
 define( 'FESTIVAL_PR3_OPTION_CONTENT_HASH', 'festival_pr3_content_hash' );
 
@@ -44,14 +45,14 @@ function festival_pr3_is_landing_editor_screen() {
 			$post_id = (int) $GLOBALS['post']->ID;
 		}
 	}
-	return $post_id > 0 && $post_id === festival_pr3_get_page_id();
+	return $post_id > 0 && festival_pr4_is_festival_page_id( $post_id );
 }
 
 /**
  * Стили и шрифты лендинга.
  */
 function festival_pr3_enqueue_assets() {
-	if ( ! is_front_page() ) {
+	if ( ! festival_pr4_is_festival_page() ) {
 		return;
 	}
 
@@ -78,8 +79,9 @@ add_action( 'wp_enqueue_scripts', 'festival_pr3_enqueue_assets', 30 );
  * @return string[]
  */
 function festival_pr3_body_class( $classes ) {
-	if ( is_front_page() ) {
+	if ( festival_pr4_is_festival_page() ) {
 		$classes[] = 'festival-landing';
+		$classes[] = 'festival-multipage';
 	}
 	return $classes;
 }
@@ -93,7 +95,7 @@ add_filter( 'body_class', 'festival_pr3_body_class' );
  * @return string
  */
 function festival_pr3_hide_page_title_block( $block_content, $block ) {
-	if ( ! is_front_page() ) {
+	if ( ! festival_pr4_is_festival_page() ) {
 		return $block_content;
 	}
 	if ( isset( $block['blockName'] ) && 'core/post-title' === $block['blockName'] ) {
@@ -158,10 +160,9 @@ function festival_pr3_edit_screen_notice() {
 	?>
 	<div class="notice notice-info">
 		<p>
-			<strong>Лендинг PR3:</strong> в редакторе подключены те же стили, что на
+			<strong>Сайт фестиваля (ПР №4):</strong> в редакторе подключены те же стили, что на
 			<a href="<?php echo esc_url( $view ); ?>" target="_blank" rel="noopener">опубликованной странице</a>.
-			Контент из <code>landing-blocks.html</code> —
-			<a href="<?php echo esc_url( admin_url( 'tools.php?page=festival-pr3' ) ); ?>">пересоздать из файла</a>.
+			<a href="<?php echo esc_url( admin_url( 'tools.php?page=festival-pr3' ) ); ?>">Пересоздать страницы из файлов</a>.
 		</p>
 	</div>
 	<?php
@@ -174,18 +175,7 @@ add_action( 'admin_notices', 'festival_pr3_edit_screen_notice' );
  * @return void
  */
 function festival_pr3_maybe_sync_content() {
-	$file = FESTIVAL_PR3_DIR . 'content/landing-blocks.html';
-	if ( ! is_readable( $file ) ) {
-		return;
-	}
-
-	$hash = md5_file( $file );
-	if ( $hash === get_option( FESTIVAL_PR3_OPTION_CONTENT_HASH ) ) {
-		return;
-	}
-
-	festival_pr3_create_or_update_page();
-	update_option( FESTIVAL_PR3_OPTION_CONTENT_HASH, $hash );
+	// PR4: синхронизация в festival_pr4_maybe_sync_content (includes/pr4-multipage.php).
 }
 add_action( 'admin_init', 'festival_pr3_maybe_sync_content' );
 
@@ -205,13 +195,13 @@ function festival_pr3_normalize_on_save( $content ) {
 	if ( $post_id <= 0 ) {
 		return $content;
 	}
-	if ( $post_id !== festival_pr3_get_page_id() ) {
+	if ( ! festival_pr4_is_festival_page_id( $post_id ) ) {
 		return $content;
 	}
 
 	return festival_pr3_normalize_block_content( $content );
 }
-add_filter( 'content_save_pre', 'festival_pr3_normalize_on_save', 9 );
+add_filter( 'content_save_pre', 'festival_pr3_normalize_on_save', 10 );
 
 /**
  * Содержимое страницы из файла блоков.
@@ -289,9 +279,7 @@ function festival_pr3_configure_site( $page_id ) {
  * Активация плагина.
  */
 function festival_pr3_activate() {
-	$page_id = festival_pr3_create_or_update_page();
-	festival_pr3_configure_site( $page_id );
-	flush_rewrite_rules();
+	festival_pr4_setup();
 }
 register_activation_hook( __FILE__, 'festival_pr3_activate' );
 
@@ -318,53 +306,45 @@ function festival_pr3_admin_page_render() {
 	}
 
 	if ( isset( $_POST['festival_pr3_rebuild'] ) && check_admin_referer( 'festival_pr3_rebuild' ) ) {
-		$page_id = festival_pr3_create_or_update_page();
-		festival_pr3_configure_site( $page_id );
-		echo '<div class="notice notice-success"><p>Лендинг обновлён.</p></div>';
+		festival_pr4_setup();
+		echo '<div class="notice notice-success"><p>Страницы и меню обновлены (ПР №4).</p></div>';
 	}
 
-	$page_id = (int) get_option( FESTIVAL_PR3_OPTION_PAGE_ID, 0 );
-	$edit    = $page_id ? get_edit_post_link( $page_id, 'raw' ) : '';
-	$view    = $page_id ? get_permalink( $page_id ) : '';
+	$home_id = festival_pr4_get_home_page_id();
+	$view    = $home_id ? get_permalink( $home_id ) : home_url( '/' );
 	?>
 	<div class="wrap">
-		<h1>Festival PR3 — лендинг</h1>
-		<p>Практическая работа №3. Контент загружается из <code>content/landing-blocks.html</code>.</p>
-		<p><strong>Важно:</strong> в редакторе превью на всю ширину, но без тёмной темы — финальный вид на <a href="<?php echo esc_url( $view ); ?>" target="_blank" rel="noopener">опубликованном сайте</a> (v<?php echo esc_html( FESTIVAL_PR3_VERSION ); ?>).</p>
-		<?php
-		$hash = get_option( FESTIVAL_PR3_OPTION_CONTENT_HASH, '—' );
-		$file = FESTIVAL_PR3_DIR . 'content/landing-blocks.html';
-		if ( is_readable( $file ) ) {
-			$current = md5_file( $file );
-			if ( $hash !== $current ) {
-				echo '<div class="notice notice-warning inline"><p>Файл landing-blocks.html изменился — нажмите «Пересоздать», чтобы обновить страницу в базе.</p></div>';
-			}
-		}
-		?>
-		<?php if ( $view ) : ?>
-			<p><a href="<?php echo esc_url( $view ); ?>" target="_blank" rel="noopener">Открыть сайт</a>
-			<?php if ( $edit ) : ?>
-				| <a href="<?php echo esc_url( $edit ); ?>">Редактировать в редакторе блоков</a>
-			<?php endif; ?>
-			</p>
-		<?php endif; ?>
+		<h1>Festival — ПР №3–4</h1>
+		<p>Многостраничный сайт: 4 страницы + меню навигации. Контент в <code>content/*.html</code>.</p>
+		<p><strong>Версия:</strong> <?php echo esc_html( FESTIVAL_PR3_VERSION ); ?> ·
+			<a href="<?php echo esc_url( $view ); ?>" target="_blank" rel="noopener">Открыть главную</a> ·
+			<a href="<?php echo esc_url( admin_url( 'nav-menus.php' ) ); ?>">Внешний вид → Меню</a> (редактирование в админке)
+		</p>
 		<form method="post">
 			<?php wp_nonce_field( 'festival_pr3_rebuild' ); ?>
-			<p><input type="submit" name="festival_pr3_rebuild" class="button button-primary" value="Пересоздать / обновить лендинг"></p>
+			<p><input type="submit" name="festival_pr3_rebuild" class="button button-primary" value="Пересоздать все страницы и меню"></p>
 		</form>
-		<h2>Секции (по ТЗ)</h2>
-		<ol>
-			<li>Hero (#hero) — Обложка</li>
-			<li>Преимущества (#advantages) — Колонки</li>
-			<li>О программе (#about) — Медиа и текст</li>
-			<li>Спикеры (#speakers)</li>
-			<li>Расписание (#schedule) — Таблица</li>
-			<li>Портфолио (#portfolio) — Галерея</li>
-			<li>FAQ (#faq) — Детали</li>
-			<li>Отзывы (#reviews) — Цитаты</li>
-			<li>CTA (#cta)</li>
-			<li>Контакты (#contacts) + карта</li>
-		</ol>
+		<h2>Страницы (ПР №4)</h2>
+		<table class="widefat striped">
+			<thead><tr><th>Страница</th><th>URL</th><th>Редактировать</th></tr></thead>
+			<tbody>
+			<?php
+			foreach ( festival_pr4_pages_config() as $key => $cfg ) :
+				$pid = (int) get_option( $cfg['option'], 0 );
+				if ( $pid <= 0 ) {
+					continue;
+				}
+				?>
+				<tr>
+					<td><?php echo esc_html( $cfg['title'] ); ?></td>
+					<td><a href="<?php echo esc_url( get_permalink( $pid ) ); ?>" target="_blank" rel="noopener"><?php echo esc_html( wp_parse_url( get_permalink( $pid ), PHP_URL_PATH ) ); ?></a></td>
+					<td><a href="<?php echo esc_url( get_edit_post_link( $pid, 'raw' ) ); ?>">Редактор блоков</a></td>
+				</tr>
+			<?php endforeach; ?>
+			</tbody>
+		</table>
+		<h2>Главная (ПР №3) — секции на одной странице</h2>
+		<p>Преимущества, превью спикеров, портфолио, FAQ, отзывы, контакты. Программа, спикеры и регистрация — отдельные страницы.</p>
 	</div>
 	<?php
 }
