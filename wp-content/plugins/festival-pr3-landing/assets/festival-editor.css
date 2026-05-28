@@ -1,0 +1,60 @@
+/**
+ * Дополнения для редактора: тот же festival.css + правки канвы Gutenberg.
+ */
+
+.editor-styles-wrapper {
+	background: var(--festival-bg, #07070d) !important;
+	color: var(--festival-text, #f4f4f8) !important;
+	padding: 0 !important;
+	max-width: none !important;
+	width: 100% !important;
+}
+
+.editor-styles-wrapper .festival-landing,
+.editor-styles-wrapper .festival-landing > .wp-block-group,
+.editor-styles-wrapper .festival-section,
+.editor-styles-wrapper .festival-section__inner,
+.editor-styles-wrapper .festival-cta {
+	max-width: none !important;
+	width: 100% !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+.editor-styles-wrapper .wp-block-cover.alignfull,
+.editor-styles-wrapper .alignfull {
+	width: 100% !important;
+	max-width: none !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+.editor-styles-wrapper .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
+	max-width: none !important;
+}
+
+/* Ширина канвы редактора (вне iframe) */
+.block-editor-iframe__body {
+	padding: 0 !important;
+}
+
+.interface-interface-skeleton__editor {
+	max-width: none !important;
+}
+
+.edit-post-visual-editor {
+	flex-grow: 1;
+}
+
+.edit-post-visual-editor__content-area {
+	max-width: none !important;
+}
+
+.editor-visual-editor {
+	max-width: none !important;
+}
+
+.editor-visual-editor__post-title-wrapper,
+.editor-visual-editor__content-area {
+	max-width: none !important;
+}
