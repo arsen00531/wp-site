@@ -566,6 +566,18 @@ body.festival-landing header .wp-block-navigation {
 	--navigation-layout-justification-setting: flex-end;
 }
 
+body.festival-landing header .wp-block-navigation .wp-block-navigation__container {
+	gap: 0.35rem 1.25rem;
+}
+
+body.festival-landing header .wp-block-navigation .wp-block-navigation-item__label {
+	white-space: nowrap;
+}
+
+body.festival-landing header .wp-block-navigation .current-menu-item .wp-block-navigation-item__label {
+	color: var(--festival-accent-2) !important;
+}
+
 body.festival-landing .wp-block-navigation__responsive-container.is-menu-open {
 	background: var(--festival-bg) !important;
 	color: var(--festival-text) !important;

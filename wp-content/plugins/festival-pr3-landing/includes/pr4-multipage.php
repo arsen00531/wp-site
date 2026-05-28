@@ -263,8 +263,8 @@ function festival_pr4_build_navigation_content() {
  * @return int
  */
 function festival_pr4_create_or_update_navigation() {
-	$inner   = festival_pr4_build_navigation_content();
-	$content = '<!-- wp:navigation {"overlayMenu":"always","layout":{"type":"flex","justifyContent":"right","flexWrap":"wrap"}} -->' . $inner . '<!-- /wp:navigation -->';
+	// В wp_navigation хранятся только пункты (без обёртки core/navigation).
+	$content = festival_pr4_build_navigation_content();
 
 	$nav_id = (int) get_option( FESTIVAL_PR4_OPTION_NAV, 0 );
 	$data   = array(
@@ -290,7 +290,75 @@ function festival_pr4_create_or_update_navigation() {
 }
 
 /**
- * Подставить ref меню в пустой блок Navigation в шапке.
+ * HTML меню для шапки (блок Navigation с ref).
+ *
+ * @return string
+ */
+function festival_pr4_get_header_navigation_markup() {
+	$nav_id = (int) get_option( FESTIVAL_PR4_OPTION_NAV, 0 );
+	if ( $nav_id <= 0 || count( festival_pr4_get_page_ids() ) < 4 ) {
+		return '';
+	}
+
+	$block = sprintf(
+		'<!-- wp:navigation {"ref":%d,"overlayMenu":"mobile","layout":{"type":"flex","justifyContent":"right","flexWrap":"wrap"}} /-->',
+		$nav_id
+	);
+
+	return do_blocks( $block );
+}
+
+/**
+ * Вставить меню в шапку, если в шаблоне темы нет блока Navigation.
+ *
+ * @param string $block_content Rendered content.
+ * @param array  $block         Block.
+ * @return string
+ */
+function festival_pr4_inject_header_navigation( $block_content, $block ) {
+	if ( is_admin() || ! festival_pr4_get_home_page_id() ) {
+		return $block_content;
+	}
+	if ( ( $block['blockName'] ?? '' ) !== 'core/template-part' ) {
+		return $block_content;
+	}
+	$slug = $block['attrs']['slug'] ?? '';
+	$area = $block['attrs']['area'] ?? '';
+	if ( 'header' !== $slug && 'header' !== $area ) {
+		return $block_content;
+	}
+	if ( strpos( $block_content, 'wp-block-navigation' ) !== false ) {
+		return $block_content;
+	}
+
+	$nav_html = festival_pr4_get_header_navigation_markup();
+	if ( '' === $nav_html ) {
+		return $block_content;
+	}
+
+	// Пустой правый flex-контейнер в шапке TT5.
+	$replaced = preg_replace(
+		'/(<div class="wp-block-group is-content-justification-right[^"]*"[^>]*>)\s*(<\/div>)/',
+		'$1' . $nav_html . '$2',
+		$block_content,
+		1
+	);
+	if ( $replaced !== null && $replaced !== $block_content ) {
+		return $replaced;
+	}
+
+	// Запасной вариант: сразу после названия сайта.
+	return preg_replace(
+		'/(<p class="wp-block-site-title">.*?<\/p>)/s',
+		'$1' . $nav_html,
+		$block_content,
+		1
+	) ?? $block_content;
+}
+add_filter( 'render_block_core/template-part', 'festival_pr4_inject_header_navigation', 10, 2 );
+
+/**
+ * Подставить ref в любой пустой блок Navigation на сайте.
  *
  * @param array $parsed_block Parsed block.
  * @return array
@@ -304,9 +372,6 @@ function festival_pr4_inject_navigation_ref( $parsed_block ) {
 	}
 	$nav_id = (int) get_option( FESTIVAL_PR4_OPTION_NAV, 0 );
 	if ( $nav_id <= 0 ) {
-		return $parsed_block;
-	}
-	if ( ! festival_pr4_is_festival_page() && ! is_front_page() ) {
 		return $parsed_block;
 	}
 	$parsed_block['attrs']['ref'] = $nav_id;
